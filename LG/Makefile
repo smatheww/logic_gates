@@ -1,22 +1,14 @@
-.PHONY: install test clean build
+# Makefile for logic_gates.py project
 
-install:
-	pip install -e .
-	pip install -r requirements.txt
+.PHONY: all test lint clean
+
+all: test lint
 
 test:
-	python -m pytest tests/ --cov=logic_gates
+	python3 -m unittest discover -s tests
+
+lint:
+	flake8 logic_gates.py
 
 clean:
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info
-	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type f -name "*.pyd" -delete
-	find . -type f -name ".coverage" -delete
-	find . -type d -name "*.egg" -exec rm -rf {} +
-
-build:
-	python setup.py build
+	rm -f *.pyc *.pyo __pycache__/*

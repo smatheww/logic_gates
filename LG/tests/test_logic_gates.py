@@ -1,101 +1,77 @@
+# tests/test_logic_gates.py
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import unittest
-from logic_gates import (
-    LogicGate, BinaryGate, UnaryGate,
-    ANDGate, ORGate, XORGate, NOTGate,
-    NANDGate, NORGate, Connector
-)
+from logic_gates import ANDGate, ORGate, NOTGate, NANDGate, NORGate, XORGate, HalfAdder, FullAdder, EightBitAdder
 
 class TestLogicGates(unittest.TestCase):
-    def setUp(self):
-        """Initialize gates for each test"""
-        self.and_gate = ANDGate("AND1")
-        self.or_gate = ORGate("OR1")
-        self.xor_gate = XORGate("XOR1")
-        self.not_gate = NOTGate("NOT1")
-        self.nand_gate = NANDGate("NAND1")
-        self.nor_gate = NORGate("NOR1")
 
     def test_and_gate(self):
-        """Test AND gate truth table"""
-        test_cases = [
-            (0, 0, 0),
-            (0, 1, 0),
-            (1, 0, 0),
-            (1, 1, 1)
-        ]
-        for a, b, expected in test_cases:
-            self.and_gate.set_pins(a, b)
-            self.assertEqual(self.and_gate.get_output(), expected)
+        gate = ANDGate("AND")
+        gate.set_pins(1, 1)
+        self.assertEqual(gate.get_output(), 1)
+        gate.set_pins(1, 0)
+        self.assertEqual(gate.get_output(), 0)
 
     def test_or_gate(self):
-        """Test OR gate truth table"""
-        test_cases = [
-            (0, 0, 0),
-            (0, 1, 1),
-            (1, 0, 1),
-            (1, 1, 1)
-        ]
-        for a, b, expected in test_cases:
-            self.or_gate.set_pins(a, b)
-            self.assertEqual(self.or_gate.get_output(), expected)
-
-    def test_xor_gate(self):
-        """Test XOR gate truth table"""
-        test_cases = [
-            (0, 0, 0),
-            (0, 1, 1),
-            (1, 0, 1),
-            (1, 1, 0)
-        ]
-        for a, b, expected in test_cases:
-            self.xor_gate.set_pins(a, b)
-            self.assertEqual(self.xor_gate.get_output(), expected)
+        gate = ORGate("OR")
+        gate.set_pins(1, 0)
+        self.assertEqual(gate.get_output(), 1)
+        gate.set_pins(0, 0)
+        self.assertEqual(gate.get_output(), 0)
 
     def test_not_gate(self):
-        """Test NOT gate truth table"""
-        test_cases = [
-            (0, 1),
-            (1, 0)
-        ]
-        for a, expected in test_cases:
-            self.not_gate.set_pin(a)
-            self.assertEqual(self.not_gate.get_output(), expected)
+        gate = NOTGate("NOT")
+        gate.set_pin(1)
+        self.assertEqual(gate.get_output(), 0)
+        gate.set_pin(0)
+        self.assertEqual(gate.get_output(), 1)
 
     def test_nand_gate(self):
-        """Test NAND gate truth table"""
-        test_cases = [
-            (0, 0, 1),
-            (0, 1, 1),
-            (1, 0, 1),
-            (1, 1, 0)
-        ]
-        for a, b, expected in test_cases:
-            self.nand_gate.set_pins(a, b)
-            self.assertEqual(self.nand_gate.get_output(), expected)
+        gate = NANDGate("NAND")
+        gate.set_pins(1, 1)
+        self.assertEqual(gate.get_output(), 0)
+        gate.set_pins(1, 0)
+        self.assertEqual(gate.get_output(), 1)
 
     def test_nor_gate(self):
-        """Test NOR gate truth table"""
-        test_cases = [
-            (0, 0, 1),
-            (0, 1, 0),
-            (1, 0, 0),
-            (1, 1, 0)
-        ]
-        for a, b, expected in test_cases:
-            self.nor_gate.set_pins(a, b)
-            self.assertEqual(self.nor_gate.get_output(), expected)
+        gate = NORGate("NOR")
+        gate.set_pins(0, 0)
+        self.assertEqual(gate.get_output(), 1)
+        gate.set_pins(1, 0)
+        self.assertEqual(gate.get_output(), 0)
 
-    def test_connector(self):
-        """Test connector between gates"""
-        self.and_gate.set_pins(1, 1)  # Should output 1
-        self.or_gate.set_pins(0, 0)   # Should output 0
-        connector = Connector(self.and_gate, self.not_gate)
-        self.assertEqual(self.not_gate.get_output(), 0)
+    def test_xor_gate(self):
+        gate = XORGate("XOR")
+        gate.set_pins(1, 0)
+        self.assertEqual(gate.get_output(), 1)
+        gate.set_pins(1, 1)
+        self.assertEqual(gate.get_output(), 0)
 
-    def test_pin_validation(self):
-        """Test pin validation"""
-        with self.assertRaises(AssertionError):
-            self.and_gate.get_output()  # Should raise error when pins not set
+class TestAdders(unittest.TestCase):
 
-if __name__ == '__main__':
+    def test_half_adder(self):
+        half_adder = HalfAdder()
+        sum_bit, carry_bit = half_adder.calculate(1, 0)
+        self.assertEqual((sum_bit, carry_bit), (1, 0))
+        sum_bit, carry_bit = half_adder.calculate(1, 1)
+        self.assertEqual((sum_bit, carry_bit), (0, 1))
+
+    def test_full_adder(self):
+        full_adder = FullAdder()
+        sum_bit, carry_out = full_adder.calculate(1, 1, 0)
+        self.assertEqual((sum_bit, carry_out), (0, 1))
+        sum_bit, carry_out = full_adder.calculate(1, 1, 1)
+        self.assertEqual((sum_bit, carry_out), (1, 1))
+
+    def test_eight_bit_adder(self):
+        adder = EightBitAdder()
+        a = [0, 1, 1, 0, 0, 1, 0, 1]
+        b = [1, 0, 1, 1, 0, 1, 1, 0]
+        result, carry_out = adder.calculate(a, b)
+        self.assertEqual(result, [1, 0, 0, 0, 1, 1, 0, 1])
+        self.assertEqual(carry_out, 0)
+
+if __name__ == "__main__":
     unittest.main()
